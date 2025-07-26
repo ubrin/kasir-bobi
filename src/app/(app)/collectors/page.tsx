@@ -82,11 +82,10 @@ function AddCollectorDialog({ onCollectorAdded }: { onCollectorAdded: () => void
     );
 }
 
-const getMethodBadge = (method: 'cash' | 'bri' | 'dana') => {
+const getMethodBadge = (method: 'cash' | 'transfer') => {
     switch(method) {
         case 'cash': return <Badge variant="secondary">Cash</Badge>;
-        case 'bri': return <Badge className="bg-blue-600 text-white hover:bg-blue-700">BRI</Badge>;
-        case 'dana': return <Badge className="bg-sky-500 text-white hover:bg-sky-600">DANA</Badge>;
+        case 'transfer': return <Badge className="bg-blue-600 text-white hover:bg-blue-700">Transfer</Badge>;
     }
 }
 

@@ -39,7 +39,7 @@ export type Payment = {
   customerName: string;
   paymentDate: string; // 'yyyy-MM-dd'
   paidAmount: number;
-  paymentMethod: 'cash' | 'bri' | 'dana';
+  paymentMethod: 'cash' | 'transfer';
   invoiceIds: string[];
   totalBill: number;
   discount: number;

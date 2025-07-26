@@ -30,8 +30,7 @@ import { useToast } from '@/hooks/use-toast';
 type GroupedPayments = {
   [date: string]: {
     cash: number;
-    bri: number;
-    dana: number;
+    transfer: number;
     total: number;
     details: Payment[];
   };
@@ -78,7 +77,7 @@ export default function PaymentReportPage() {
   const groupedPayments = filteredPayments.reduce<GroupedPayments>((acc, payment) => {
     const paymentDate = format(parseISO(payment.paymentDate), 'yyyy-MM-dd');
     if (!acc[paymentDate]) {
-      acc[paymentDate] = { cash: 0, bri: 0, dana: 0, total: 0, details: [] };
+      acc[paymentDate] = { cash: 0, transfer: 0, total: 0, details: [] };
     }
     acc[paymentDate][payment.paymentMethod] += payment.totalPayment;
     acc[paymentDate].total += payment.totalPayment;
@@ -88,11 +87,10 @@ export default function PaymentReportPage() {
 
   const sortedDates = Object.keys(groupedPayments).sort((a, b) => new Date(b).getTime() - new Date(a).getTime());
   
-  const getMethodBadge = (method: 'cash' | 'bri' | 'dana') => {
+  const getMethodBadge = (method: 'cash' | 'transfer') => {
     switch(method) {
         case 'cash': return <Badge variant="secondary">Cash</Badge>;
-        case 'bri': return <Badge className="bg-blue-600 text-white hover:bg-blue-700">BRI</Badge>;
-        case 'dana': return <Badge className="bg-sky-500 text-white hover:bg-sky-600">DANA</Badge>;
+        case 'transfer': return <Badge className="bg-blue-600 text-white hover:bg-blue-700">Transfer</Badge>;
     }
   }
 
@@ -164,8 +162,7 @@ export default function PaymentReportPage() {
                                             <span className="font-semibold text-base">{format(parseISO(dateStr), 'eeee, d MMMM yyyy', { locale: id })}</span>
                                             <div className="flex flex-col sm:flex-row sm:gap-4 text-sm text-muted-foreground pt-1">
                                                 <span>Cash: <span className="font-medium text-foreground">Rp{dateData.cash.toLocaleString('id-ID')}</span></span>
-                                                <span>BRI: <span className="font-medium text-foreground">Rp{dateData.bri.toLocaleString('id-ID')}</span></span>
-                                                <span>DANA: <span className="font-medium text-foreground">Rp{dateData.dana.toLocaleString('id-ID')}</span></span>
+                                                <span>Transfer: <span className="font-medium text-foreground">Rp{dateData.transfer.toLocaleString('id-ID')}</span></span>
                                             </div>
                                         </div>
                                         <span className="font-bold text-lg text-primary">Total: Rp{dateData.total.toLocaleString('id-ID')}</span>

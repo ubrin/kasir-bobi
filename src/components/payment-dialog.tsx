@@ -47,7 +47,7 @@ const paymentSchema = z.object({
   selectedInvoices: z.array(z.string()).nonempty({
     message: 'Pilih setidaknya satu faktur untuk dibayar.',
   }),
-  paymentMethod: z.enum(['cash', 'bri', 'dana'], {
+  paymentMethod: z.enum(['cash', 'transfer'], {
     required_error: 'Pilih metode pembayaran.',
   }),
   paymentDate: z.date({
@@ -308,12 +308,8 @@ export function PaymentDialog({ customer, onPaymentSuccess }: PaymentDialogProps
                             <Label htmlFor="cash">Cash</Label>
                         </div>
                         <div className="flex items-center space-x-2">
-                            <RadioGroupItem value="bri" id="bri" />
-                            <Label htmlFor="bri">BRI</Label>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                            <RadioGroupItem value="dana" id="dana" />
-                            <Label htmlFor="dana">DANA</Label>
+                            <RadioGroupItem value="transfer" id="transfer" />
+                            <Label htmlFor="transfer">Transfer</Label>
                         </div>
                         </RadioGroup>
                     )}
@@ -455,5 +451,3 @@ export function PaymentDialog({ customer, onPaymentSuccess }: PaymentDialogProps
     </Dialog>
   );
 }
-
-    
