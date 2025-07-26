@@ -116,7 +116,7 @@ export default function OtherIncomesPage() {
     }
   };
 
-  const renderHistoryTable = (data: OtherIncome[]) => {
+  const renderHistoryTable = (data: OtherIncome[], title: string, description: string) => {
     if (loading) {
       return (
         <div className="flex items-center justify-center h-48">
@@ -126,52 +126,68 @@ export default function OtherIncomesPage() {
     }
     if (data.length === 0) {
       return (
-        <div className="flex flex-col items-center justify-center h-48 gap-2 text-center">
-          <p className="text-lg font-medium">Tidak Ada Riwayat</p>
-          <p className="text-muted-foreground">Belum ada pemasukan yang tercatat.</p>
-        </div>
+        <Card>
+            <CardHeader>
+                <CardTitle>{title}</CardTitle>
+                <CardDescription>{description}</CardDescription>
+            </CardHeader>
+            <CardContent>
+                <div className="flex flex-col items-center justify-center h-48 gap-2 text-center">
+                <p className="text-lg font-medium">Tidak Ada Riwayat</p>
+                <p className="text-muted-foreground">Belum ada pemasukan yang tercatat.</p>
+                </div>
+            </CardContent>
+        </Card>
       );
     }
     return (
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Tanggal</TableHead>
-            <TableHead>Nama</TableHead>
-            <TableHead className="text-right">Jumlah</TableHead>
-            <TableHead className="text-right">Aksi</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {data.map((item) => (
-            <TableRow key={item.id}>
-              <TableCell>{item.date ? format(parseISO(item.date), 'd MMMM yyyy', { locale: id }) : ''}</TableCell>
-              <TableCell className="font-medium">{item.name}</TableCell>
-              <TableCell className="text-right">Rp{(item.amount || 0).toLocaleString('id-ID')}</TableCell>
-              <TableCell className="text-right">
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button aria-haspopup="true" size="icon" variant="ghost">
-                      <MoreHorizontal className="h-4 w-4" />
-                      <span className="sr-only">Buka menu</span>
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuLabel>Aksi</DropdownMenuLabel>
-                    <DropdownMenuItem 
-                      className="text-destructive focus:text-destructive focus:bg-destructive/10"
-                      onClick={() => handleDeleteClick(item)}
-                    >
-                      <Trash2 className="mr-2 h-4 w-4" />
-                      Hapus
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+        <Card>
+            <CardHeader>
+                <CardTitle>{title}</CardTitle>
+                <CardDescription>{description}</CardDescription>
+            </CardHeader>
+            <CardContent>
+                <Table>
+                    <TableHeader>
+                    <TableRow>
+                        <TableHead>Tanggal</TableHead>
+                        <TableHead>Nama</TableHead>
+                        <TableHead className="text-right">Jumlah</TableHead>
+                        <TableHead className="text-right">Aksi</TableHead>
+                    </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                    {data.map((item) => (
+                        <TableRow key={item.id}>
+                        <TableCell>{item.date ? format(parseISO(item.date), 'd MMMM yyyy', { locale: id }) : ''}</TableCell>
+                        <TableCell className="font-medium">{item.name}</TableCell>
+                        <TableCell className="text-right">Rp{(item.amount || 0).toLocaleString('id-ID')}</TableCell>
+                        <TableCell className="text-right">
+                            <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button aria-haspopup="true" size="icon" variant="ghost">
+                                <MoreHorizontal className="h-4 w-4" />
+                                <span className="sr-only">Buka menu</span>
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                                <DropdownMenuLabel>Aksi</DropdownMenuLabel>
+                                <DropdownMenuItem 
+                                className="text-destructive focus:text-destructive focus:bg-destructive/10"
+                                onClick={() => handleDeleteClick(item)}
+                                >
+                                <Trash2 className="mr-2 h-4 w-4" />
+                                Hapus
+                                </DropdownMenuItem>
+                            </DropdownMenuContent>
+                            </DropdownMenu>
+                        </TableCell>
+                        </TableRow>
+                    ))}
+                    </TableBody>
+                </Table>
+            </CardContent>
+        </Card>
     );
   };
 
@@ -182,35 +198,93 @@ export default function OtherIncomesPage() {
         return dateB.getTime() - dateA.getTime();
     });
 
+    if (loading) {
+         return <div className="flex items-center justify-center h-48"><Loader2 className="h-8 w-8 animate-spin" /></div>;
+    }
+
     if (sortedMonths.length === 0) {
         return (
-            <div className="flex flex-col items-center justify-center h-48 gap-2 text-center">
-                <p className="text-lg font-medium">Tidak Ada Riwayat</p>
-                <p className="text-muted-foreground">Belum ada pemasukan lain yang tercatat.</p>
-            </div>
+             <Card>
+                <CardHeader>
+                    <CardTitle>Semua Riwayat Pemasukan Lainnya</CardTitle>
+                    <CardDescription>Seluruh pemasukan lain yang pernah tercatat, dikelompokkan per bulan.</CardDescription>
+                </CardHeader>
+                 <CardContent>
+                    <div className="flex flex-col items-center justify-center h-48 gap-2 text-center">
+                        <p className="text-lg font-medium">Tidak Ada Riwayat</p>
+                        <p className="text-muted-foreground">Belum ada pemasukan lain yang tercatat.</p>
+                    </div>
+                </CardContent>
+            </Card>
         );
     }
 
     return (
-        <Accordion type="multiple" className="w-full" defaultValue={sortedMonths.length > 0 ? [sortedMonths[0]] : []}>
-            {sortedMonths.map(month => {
-                const incomesForMonth = data[month];
-                const totalForMonth = incomesForMonth.reduce((sum, inc) => sum + (inc.amount || 0), 0);
-                return (
-                    <AccordionItem value={month} key={month}>
-                        <AccordionTrigger>
-                            <div className="flex justify-between w-full pr-4">
-                                <span>{month}</span>
-                                <span className="font-semibold">Total: Rp{totalForMonth.toLocaleString('id-ID')}</span>
-                            </div>
-                        </AccordionTrigger>
-                        <AccordionContent className="p-0">
-                            {renderHistoryTable(incomesForMonth)}
-                        </AccordionContent>
-                    </AccordionItem>
-                );
-            })}
-        </Accordion>
+        <Card>
+            <CardHeader>
+                <CardTitle>Semua Riwayat Pemasukan Lainnya</CardTitle>
+                <CardDescription>Seluruh pemasukan lain yang pernah tercatat, dikelompokkan per bulan.</CardDescription>
+            </CardHeader>
+            <CardContent>
+                <Accordion type="multiple" className="w-full" defaultValue={sortedMonths.length > 0 ? [sortedMonths[0]] : []}>
+                    {sortedMonths.map(month => {
+                        const incomesForMonth = data[month];
+                        const totalForMonth = incomesForMonth.reduce((sum, inc) => sum + (inc.amount || 0), 0);
+                        return (
+                            <AccordionItem value={month} key={month}>
+                                <AccordionTrigger>
+                                    <div className="flex justify-between w-full pr-4">
+                                        <span>{month}</span>
+                                        <span className="font-semibold">Total: Rp{totalForMonth.toLocaleString('id-ID')}</span>
+                                    </div>
+                                </AccordionTrigger>
+                                <AccordionContent className="p-0">
+                                     <Table>
+                                        <TableHeader>
+                                        <TableRow>
+                                            <TableHead>Tanggal</TableHead>
+                                            <TableHead>Nama</TableHead>
+                                            <TableHead className="text-right">Jumlah</TableHead>
+                                            <TableHead className="text-right">Aksi</TableHead>
+                                        </TableRow>
+                                        </TableHeader>
+                                        <TableBody>
+                                        {incomesForMonth.map((item) => (
+                                            <TableRow key={item.id}>
+                                            <TableCell>{item.date ? format(parseISO(item.date), 'd MMMM yyyy', { locale: id }) : ''}</TableCell>
+                                            <TableCell className="font-medium">{item.name}</TableCell>
+                                            <TableCell className="text-right">Rp{(item.amount || 0).toLocaleString('id-ID')}</TableCell>
+                                            <TableCell className="text-right">
+                                                <DropdownMenu>
+                                                <DropdownMenuTrigger asChild>
+                                                    <Button aria-haspopup="true" size="icon" variant="ghost">
+                                                    <MoreHorizontal className="h-4 w-4" />
+                                                    <span className="sr-only">Buka menu</span>
+                                                    </Button>
+                                                </DropdownMenuTrigger>
+                                                <DropdownMenuContent align="end">
+                                                    <DropdownMenuLabel>Aksi</DropdownMenuLabel>
+                                                    <DropdownMenuItem 
+                                                    className="text-destructive focus:text-destructive focus:bg-destructive/10"
+                                                    onClick={() => handleDeleteClick(item)}
+                                                    >
+                                                    <Trash2 className="mr-2 h-4 w-4" />
+                                                    Hapus
+                                                    </DropdownMenuItem>
+                                                </DropdownMenuContent>
+                                                </DropdownMenu>
+                                            </TableCell>
+                                            </TableRow>
+                                        ))}
+                                        </TableBody>
+                                    </Table>
+                                </AccordionContent>
+                            </AccordionItem>
+                        );
+                    })}
+                </Accordion>
+            </CardContent>
+        </Card>
     );
   };
 
@@ -226,24 +300,8 @@ export default function OtherIncomesPage() {
         </div>
         
         <div className="space-y-4">
-            <Card>
-                <CardHeader>
-                    <CardTitle>Riwayat Bulan Ini</CardTitle>
-                    <CardDescription>Pemasukan lain yang tercatat bulan ini.</CardDescription>
-                </CardHeader>
-                <CardContent>
-                    {renderHistoryTable(history.thisMonth)}
-                </CardContent>
-            </Card>
-            <Card>
-                <CardHeader>
-                    <CardTitle>Semua Riwayat Pemasukan Lainnya</CardTitle>
-                    <CardDescription>Seluruh pemasukan lain yang pernah tercatat, dikelompokkan per bulan.</CardDescription>
-                </CardHeader>
-                <CardContent>
-                    {renderGroupedHistory(history.byMonth)}
-                </CardContent>
-            </Card>
+            {renderHistoryTable(history.thisMonth, 'Riwayat Bulan Ini', 'Pemasukan lain yang tercatat bulan ini.')}
+            {renderGroupedHistory(history.byMonth)}
         </div>
       </div>
 
