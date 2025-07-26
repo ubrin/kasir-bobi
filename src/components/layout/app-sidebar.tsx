@@ -47,14 +47,7 @@ const menuItems = [
         { href: '/other-incomes', label: 'Pemasukan Lainnya', icon: DollarSign, roles: ['admin'] },
     ]
   },
-  {
-    label: 'Data Master',
-    icon: Settings,
-    roles: ['admin'],
-    subItems: [
-        { href: '/collectors', label: 'Daftar Penagih', icon: UsersRound, roles: ['admin'] },
-    ]
-  }
+  { href: '/collectors', label: 'Daftar Penagih', icon: UsersRound, roles: ['admin'] },
 ];
 
 export default function AppSidebar() {
