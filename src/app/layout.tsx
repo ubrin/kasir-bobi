@@ -4,8 +4,8 @@ import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
 import { AuthProvider } from '@/context/auth-context';
 
-const APP_NAME = "Tagihan Adit";
-const APP_DESCRIPTION = "Kelola pelanggan dan penagihan dengan wawasan bertenaga AI.";
+const APP_NAME = "Manajemen Pelanggan";
+const APP_DESCRIPTION = "Kelola pelanggan dan penagihan dengan mudah.";
 
 export const metadata: Metadata = {
   applicationName: APP_NAME,
