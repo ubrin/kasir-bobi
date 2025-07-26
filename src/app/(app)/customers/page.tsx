@@ -414,7 +414,7 @@ export default function CustomersPage() {
 
                     return (
                         <AccordionItem value={String(code)} key={code} className="border rounded-lg bg-card overflow-hidden">
-                            <AccordionTrigger className="bg-muted/50 hover:no-underline px-4 sm:px-6 py-2">
+                            <div className="flex items-center justify-between bg-muted/50 hover:no-underline px-4 sm:px-6 py-2">
                                 <div className="flex items-center gap-4">
                                     <Checkbox
                                         checked={isAllSelectedInGroup}
@@ -423,7 +423,8 @@ export default function CustomersPage() {
                                     />
                                     <span className="font-semibold text-lg">Tanggal {code}</span>
                                 </div>
-                            </AccordionTrigger>
+                                <AccordionTrigger className="py-1 px-2" />
+                            </div>
                             <AccordionContent className="p-0">
                                 {/* Desktop Table */}
                                 <div className="hidden md:block">
