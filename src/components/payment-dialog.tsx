@@ -33,8 +33,8 @@ import type { Customer, Invoice, Collector } from '@/lib/types';
 import { Checkbox } from './ui/checkbox';
 import {
   Tooltip,
-  TooltipContent,
   TooltipProvider,
+  TooltipContent,
   TooltipTrigger,
 } from './ui/tooltip';
 import { ScrollArea } from './ui/scroll-area';
@@ -218,12 +218,12 @@ export function PaymentDialog({ customer, onPaymentSuccess }: PaymentDialogProps
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-md p-0 flex flex-col max-h-[90vh]" onClick={(e) => e.stopPropagation()}>
-        <DialogHeader className="p-6 pb-4 border-b">
+        <DialogHeader className="p-6 pb-4 border-b shrink-0">
           <DialogTitle>Pembayaran</DialogTitle>
           <DialogDescription>{customer.name}</DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} className="flex-1 flex flex-col overflow-hidden">
-            <ScrollArea className="flex-1 p-6 pt-2">
+            <div className="flex-1 overflow-y-auto p-6">
               <div className="grid gap-6">
                 <div className="grid gap-3">
                   <Label>Pilih Tagihan</Label>
@@ -438,8 +438,8 @@ export function PaymentDialog({ customer, onPaymentSuccess }: PaymentDialogProps
                   </div>
                 </div>
               </div>
-            </ScrollArea>
-            <DialogFooter className="p-6 pt-4 border-t">
+            </div>
+            <DialogFooter className="p-6 pt-4 border-t shrink-0">
               <Button type="submit">Konfirmasi Pembayaran</Button>
             </DialogFooter>
         </form>
