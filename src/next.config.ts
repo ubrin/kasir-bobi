@@ -32,6 +32,9 @@ const nextConfig: NextConfig = {
     // Menambahkan domains untuk mengatasi masalah gambar lokal
     domains: ['localhost'],
   },
+   experimental: {
+    serverComponentsExternalPackages: ["firebase"],
+  },
 };
 
 export default withPWA(nextConfig);

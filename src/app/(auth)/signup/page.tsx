@@ -59,7 +59,7 @@ export default function SignupPage() {
             if (err.code) {
                 switch (err.code) {
                     case 'auth/email-already-in-use':
-                        errorMessage = 'Email ini sudah terdaftar.';
+                        errorMessage = 'Email ini sudah terdaftar. Silakan gunakan email lain atau masuk.';
                         break;
                     case 'auth/weak-password':
                         errorMessage = 'Kata sandi terlalu lemah. Gunakan minimal 6 karakter.';
