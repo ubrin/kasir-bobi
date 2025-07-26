@@ -51,7 +51,6 @@ export type Payment = {
 
 export type AppUser = {
   uid: string;
-  username: string;
   email: string | null;
   firstName: string;
   lastName: string;

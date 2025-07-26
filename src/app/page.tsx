@@ -4,8 +4,7 @@ import Link from "next/link"
 import * as React from "react";
 import { useRouter } from "next/navigation";
 import { signInWithEmailAndPassword } from "firebase/auth";
-import { collection, query, where, getDocs } from "firebase/firestore";
-import { auth, db } from "@/lib/firebase";
+import { auth } from "@/lib/firebase";
 import { useAuth } from "@/context/auth-context";
 
 import { Button } from "@/components/ui/button"
@@ -25,7 +24,7 @@ export default function LoginPage() {
     const { user, loading: authLoading } = useAuth();
     const router = useRouter();
     const { toast } = useToast();
-    const [username, setUsername] = React.useState("");
+    const [email, setEmail] = React.useState("");
     const [password, setPassword] = React.useState("");
     const [loading, setLoading] = React.useState(false);
     const [error, setError] = React.useState("");
@@ -42,24 +41,6 @@ export default function LoginPage() {
         setError("");
         
         try {
-            // 1. Find user by username to get their email
-            const usersRef = collection(db, "users");
-            const q = query(usersRef, where("username", "==", username.toLowerCase()));
-            const querySnapshot = await getDocs(q);
-
-            if (querySnapshot.empty) {
-                throw new Error("auth/user-not-found");
-            }
-            
-            const userDoc = querySnapshot.docs[0];
-            const userData = userDoc.data();
-            const email = userData.email;
-
-            if (!email) {
-                 throw new Error("auth/invalid-email");
-            }
-
-            // 2. Sign in with the retrieved email and provided password
             await signInWithEmailAndPassword(auth, email, password);
             
             toast({
@@ -70,21 +51,19 @@ export default function LoginPage() {
 
         } catch (err: any) {
              let errorMessage = "Terjadi kesalahan. Silakan coba lagi.";
-             switch (err.message) {
-                 case "auth/user-not-found":
-                     errorMessage = "Nama pengguna tidak ditemukan.";
-                     break;
-                 case "auth/invalid-credential":
-                     errorMessage = "Nama pengguna atau kata sandi salah.";
-                     break;
-                 case "auth/invalid-email":
-                      errorMessage = "Akun ini tidak memiliki email yang valid.";
-                      break;
-                 default:
-                    if (err.code === 'auth/invalid-credential') {
-                        errorMessage = "Nama pengguna atau kata sandi salah.";
-                    }
-                    break;
+             if (err.code) {
+                switch (err.code) {
+                    case 'auth/user-not-found':
+                    case 'auth/invalid-credential':
+                        errorMessage = "Email atau kata sandi salah.";
+                        break;
+                    case 'auth/invalid-email':
+                        errorMessage = "Format email tidak valid.";
+                        break;
+                    default:
+                        errorMessage = `Terjadi kesalahan: ${err.message}`;
+                        break;
+                }
              }
             setError(errorMessage);
             toast({
@@ -117,14 +96,14 @@ export default function LoginPage() {
         <CardContent>
           <form onSubmit={handleLogin} className="grid gap-4">
             <div className="grid gap-2">
-              <Label htmlFor="username">Nama Pengguna</Label>
+              <Label htmlFor="email">Email</Label>
               <Input
-                id="username"
-                type="text"
-                placeholder="cth. budi"
+                id="email"
+                type="email"
+                placeholder="m@example.com"
                 required
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 disabled={loading}
               />
             </div>
