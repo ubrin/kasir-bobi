@@ -3,8 +3,9 @@ import { initializeApp, getApps, getApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 
+// TODO: Replace YOUR_API_KEY with the actual API key from your Firebase project settings.
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
+  apiKey: "YOUR_API_KEY", // <-- PASTE YOUR REAL API KEY HERE
   authDomain: "kasir-bob-okq4b.firebaseapp.com",
   projectId: "kasir-bob-okq4b",
   storageBucket: "kasir-bob-okq4b.appspot.com",
