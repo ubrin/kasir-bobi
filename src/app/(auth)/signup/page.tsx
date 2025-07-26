@@ -1,11 +1,10 @@
 
 'use client';
 import Link from "next/link"
-import Image from "next/image"
 import * as React from "react";
 import { useRouter } from "next/navigation";
 import { createUserWithEmailAndPassword } from "firebase/auth";
-import { doc, setDoc } from "firebase/firestore";
+import { doc, setDoc, getDocs, collection, query, where } from "firebase/firestore";
 import { auth, db } from "@/lib/firebase";
 
 import { Button } from "@/components/ui/button"
@@ -26,23 +25,49 @@ export default function SignupPage() {
     const router = useRouter();
     const { toast } = useToast();
     const [email, setEmail] = React.useState("");
+    const [username, setUsername] = React.useState("");
     const [password, setPassword] = React.useState("");
     const [firstName, setFirstName] = React.useState("");
     const [lastName, setLastName] = React.useState("");
     const [loading, setLoading] = React.useState(false);
     const [error, setError] = React.useState("");
 
+    const isUsernameUnique = async (username: string) => {
+        const q = query(collection(db, "users"), where("username", "==", username.toLowerCase()));
+        const querySnapshot = await getDocs(q);
+        return querySnapshot.empty;
+    };
+
+
     const handleSignup = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
         setError("");
+
+        if (!/^[a-z0-9_.]+$/.test(username)) {
+            const errorMessage = "Nama pengguna hanya boleh berisi huruf kecil, angka, titik, dan garis bawah.";
+            setError(errorMessage);
+            toast({ title: "Pendaftaran Gagal", description: errorMessage, variant: "destructive" });
+            setLoading(false);
+            return;
+        }
+
         try {
+            const usernameIsUnique = await isUsernameUnique(username);
+            if (!usernameIsUnique) {
+                const errorMessage = "Nama pengguna ini sudah digunakan. Silakan pilih yang lain.";
+                setError(errorMessage);
+                toast({ title: "Pendaftaran Gagal", description: errorMessage, variant: "destructive" });
+                setLoading(false);
+                return;
+            }
+
             const userCredential = await createUserWithEmailAndPassword(auth, email, password);
             const user = userCredential.user;
 
-            // Save user data to Firestore
             await setDoc(doc(db, "users", user.uid), {
                 uid: user.uid,
+                username: username.toLowerCase(),
                 firstName: firstName,
                 lastName: lastName,
                 email: user.email,
@@ -55,7 +80,7 @@ export default function SignupPage() {
             });
             router.push("/home");
         } catch (err: any) {
-            console.error("Signup failed:", err); // Log the full error for debugging
+            console.error("Signup failed:", err);
             let errorMessage = "Terjadi kesalahan saat pendaftaran. Silakan coba lagi.";
             if (err.code) {
                 switch (err.code) {
@@ -67,12 +92,6 @@ export default function SignupPage() {
                         break;
                     case 'auth/invalid-email':
                         errorMessage = 'Format email tidak valid.';
-                        break;
-                    case 'auth/configuration-not-found':
-                        errorMessage = 'Konfigurasi Autentikasi tidak ditemukan. Pastikan metode login Email/Password sudah diaktifkan di Firebase Console.';
-                        break;
-                    case 'permission-denied':
-                        errorMessage = 'Gagal menyimpan data pengguna. Periksa aturan keamanan Firestore Anda.';
                         break;
                     default:
                         errorMessage = `Terjadi kesalahan: ${err.message}`;
@@ -124,6 +143,18 @@ export default function SignupPage() {
                     disabled={loading}
                 />
               </div>
+            </div>
+             <div className="grid gap-2">
+              <Label htmlFor="username">Nama Pengguna</Label>
+              <Input
+                id="username"
+                type="text"
+                placeholder="cth. maxrobinson"
+                required
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                disabled={loading}
+              />
             </div>
             <div className="grid gap-2">
               <Label htmlFor="email">Email</Label>

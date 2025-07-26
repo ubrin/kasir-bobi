@@ -4,7 +4,8 @@ import Link from "next/link"
 import * as React from "react";
 import { useRouter } from "next/navigation";
 import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth } from "@/lib/firebase";
+import { collection, query, where, getDocs } from "firebase/firestore";
+import { auth, db } from "@/lib/firebase";
 import { useAuth } from "@/context/auth-context";
 
 import { Button } from "@/components/ui/button"
@@ -19,14 +20,12 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
-import { Separator } from "@/components/ui/separator";
-
 
 export default function LoginPage() {
     const { user, loading: authLoading } = useAuth();
     const router = useRouter();
     const { toast } = useToast();
-    const [email, setEmail] = React.useState("");
+    const [username, setUsername] = React.useState("");
     const [password, setPassword] = React.useState("");
     const [loading, setLoading] = React.useState(false);
     const [error, setError] = React.useState("");
@@ -41,17 +40,52 @@ export default function LoginPage() {
         e.preventDefault();
         setLoading(true);
         setError("");
+        
         try {
+            // 1. Find user by username to get their email
+            const usersRef = collection(db, "users");
+            const q = query(usersRef, where("username", "==", username.toLowerCase()));
+            const querySnapshot = await getDocs(q);
+
+            if (querySnapshot.empty) {
+                throw new Error("auth/user-not-found");
+            }
+            
+            const userDoc = querySnapshot.docs[0];
+            const userData = userDoc.data();
+            const email = userData.email;
+
+            if (!email) {
+                 throw new Error("auth/invalid-email");
+            }
+
+            // 2. Sign in with the retrieved email and provided password
             await signInWithEmailAndPassword(auth, email, password);
+            
             toast({
                 title: "Login Berhasil",
                 description: "Anda akan diarahkan ke halaman utama.",
             });
             router.push("/home");
+
         } catch (err: any) {
-             const errorMessage = err.code === 'auth/invalid-credential' 
-                ? 'Email atau kata sandi salah.'
-                : 'Terjadi kesalahan. Silakan coba lagi.';
+             let errorMessage = "Terjadi kesalahan. Silakan coba lagi.";
+             switch (err.message) {
+                 case "auth/user-not-found":
+                     errorMessage = "Nama pengguna tidak ditemukan.";
+                     break;
+                 case "auth/invalid-credential":
+                     errorMessage = "Nama pengguna atau kata sandi salah.";
+                     break;
+                 case "auth/invalid-email":
+                      errorMessage = "Akun ini tidak memiliki email yang valid.";
+                      break;
+                 default:
+                    if (err.code === 'auth/invalid-credential') {
+                        errorMessage = "Nama pengguna atau kata sandi salah.";
+                    }
+                    break;
+             }
             setError(errorMessage);
             toast({
                 title: "Login Gagal",
@@ -83,14 +117,14 @@ export default function LoginPage() {
         <CardContent>
           <form onSubmit={handleLogin} className="grid gap-4">
             <div className="grid gap-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="username">Nama Pengguna</Label>
               <Input
-                id="email"
-                type="email"
-                placeholder="m@example.com"
+                id="username"
+                type="text"
+                placeholder="cth. budi"
                 required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
                 disabled={loading}
               />
             </div>
