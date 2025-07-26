@@ -243,8 +243,35 @@ export default function DelinquencyPage() {
                     </Button>
                 ),
             });
+            
+            // Update local state instead of re-fetching
+            setDelinquentCustomersList(prevList => {
+                const newList = prevList.map(cust => {
+                    if (cust.id === customerId) {
+                        const remainingInvoices = cust.invoices.filter(
+                            inv => !paymentDetails.selectedInvoices.includes(inv.id)
+                        );
+                        
+                        if(remainingInvoices.length === 0) {
+                            return null; // This customer will be filtered out
+                        }
+
+                        // Recalculate overdue amount based on remaining invoices
+                        const newOverdueAmount = remainingInvoices.reduce((sum, inv) => sum + inv.amount, 0) - (cust.creditBalance ?? 0);
+                        
+                        return {
+                            ...cust,
+                            invoices: remainingInvoices,
+                            overdueAmount: Math.max(0, newOverdueAmount),
+                            // Potentially update creditBalance if needed, though it might be stale.
+                            // For simplicity, we assume the main change is removing paid invoices.
+                        };
+                    }
+                    return cust;
+                });
+                return newList.filter((cust): cust is DelinquentCustomer => cust !== null);
+            });
     
-            fetchDelinquentData(); 
         } catch (error) {
             console.error("Payment processing error:", error);
             toast({
@@ -402,5 +429,3 @@ export default function DelinquencyPage() {
     </div>
   )
 }
-
-    
