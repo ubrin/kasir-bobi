@@ -236,40 +236,43 @@ export default function DelinquencyPage() {
                 title: "Pembayaran Berhasil",
                 description: `Pembayaran untuk ${customerName} telah berhasil diproses.`,
                 action: (
-                    <Button asChild variant="secondary" size="sm">
-                        <Link href={`/receipt/${newPaymentRef.id}`}>
-                            <Receipt className="mr-2 h-4 w-4" /> Lihat Struk
-                        </Link>
+                    <Button 
+                        variant="secondary" 
+                        size="sm" 
+                        onClick={() => router.push(`/receipt/${newPaymentRef.id}`)}
+                    >
+                        <Receipt className="mr-2 h-4 w-4" /> Lihat Struk
                     </Button>
                 ),
             });
             
-            // Update local state instead of re-fetching
             setDelinquentCustomersList(prevList => {
-                const newList = prevList.map(cust => {
-                    if (cust.id === customerId) {
-                        const remainingInvoices = cust.invoices.filter(
-                            inv => !paymentDetails.selectedInvoices.includes(inv.id)
-                        );
-                        
-                        if(remainingInvoices.length === 0) {
-                            return null; // This customer will be filtered out
-                        }
+                const newList = [...prevList];
+                const customerIndex = newList.findIndex(c => c.id === customerId);
 
-                        // Recalculate overdue amount based on remaining invoices
-                        const newOverdueAmount = remainingInvoices.reduce((sum, inv) => sum + inv.amount, 0) - (cust.creditBalance ?? 0);
+                if (customerIndex > -1) {
+                    const updatedCustomer = { ...newList[customerIndex] };
+                    
+                    const remainingInvoices = updatedCustomer.invoices.filter(inv => !paymentDetails.selectedInvoices.includes(inv.id));
+
+                    if (remainingInvoices.length === 0) {
+                        // If all invoices are paid, remove the customer from the list
+                        newList.splice(customerIndex, 1);
+                    } else {
+                        // Otherwise, update the customer's invoice list and overdue amount
+                        const newCreditBalance = (updatedCustomer.creditBalance ?? 0) + newPayment.changeAmount - creditUsed;
+                        const newOverdueAmount = remainingInvoices.reduce((sum, inv) => sum + inv.amount, 0) - newCreditBalance;
                         
-                        return {
-                            ...cust,
-                            invoices: remainingInvoices,
-                            overdueAmount: Math.max(0, newOverdueAmount),
-                            // Potentially update creditBalance if needed, though it might be stale.
-                            // For simplicity, we assume the main change is removing paid invoices.
-                        };
+                        updatedCustomer.invoices = remainingInvoices;
+                        updatedCustomer.overdueAmount = Math.max(0, newOverdueAmount);
+                        updatedCustomer.creditBalance = newCreditBalance;
+                        updatedCustomer.hasArrears = remainingInvoices.some(inv => parseISO(inv.date) < startOfMonth(new Date()));
+                        updatedCustomer.nearestDueDate = remainingInvoices.length > 0 ? format(parseISO(remainingInvoices[0].dueDate), 'yyyy-MM-dd') : '';
+
+                        newList[customerIndex] = updatedCustomer;
                     }
-                    return cust;
-                });
-                return newList.filter((cust): cust is DelinquentCustomer => cust !== null);
+                }
+                return newList;
             });
     
         } catch (error) {
