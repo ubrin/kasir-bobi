@@ -32,7 +32,7 @@ const menuItems = [
     roles: ['admin', 'user'],
     subItems: [
       { href: '/delinquency', label: 'Tagihan', icon: CreditCard, roles: ['admin', 'user'] },
-      { href: '/payment-report', label: 'Laporan', icon: BarChart3, roles: ['admin'] },
+      { href: '/payment-report', label: 'Laporan', icon: BarChart3, roles: ['admin', 'user'] },
     ]
   },
   { href: '/customers', label: 'Data Pelanggan', icon: Users, roles: ['admin', 'user'] },
