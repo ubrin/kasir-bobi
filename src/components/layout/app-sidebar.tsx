@@ -43,6 +43,8 @@ const menuItems = [
     subItems: [
         { href: '/finance', label: 'Keuangan', icon: Wallet, roles: ['admin'] },
         { href: '/monthly-statistics', label: 'Statistik Bulanan', icon: AreaChart, roles: ['admin'] },
+        { href: '/expenses', label: 'Pengeluaran', icon: TrendingDown, roles: ['admin'] },
+        { href: '/other-incomes', label: 'Pemasukan Lainnya', icon: DollarSign, roles: ['admin'] },
     ]
   },
   {
@@ -50,8 +52,6 @@ const menuItems = [
     icon: Settings,
     roles: ['admin'],
     subItems: [
-        { href: '/expenses', label: 'Pengeluaran', icon: TrendingDown, roles: ['admin'] },
-        { href: '/other-incomes', label: 'Pemasukan Lainnya', icon: DollarSign, roles: ['admin'] },
         { href: '/collectors', label: 'Daftar Penagih', icon: UsersRound, roles: ['admin'] },
     ]
   }
